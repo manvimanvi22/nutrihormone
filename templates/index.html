@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NutriHormone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+<!-- NAVBAR -->
+<header class="bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-emerald-600">NutriHormone</h1>
+
+    <div class="space-x-6">
+      <a href="/about" class="text-slate-600 hover:text-emerald-600 font-medium">
+        About Us
+      </a>
+
+      <a href="/cycle-tracker" class="text-slate-600 hover:text-emerald-600 font-medium">
+        Cycle Tracker
+      </a>
+
+      <a href="/analysis" class="text-slate-600 hover:text-emerald-600 font-medium">
+        Health Analysis
+      </a>
+
+      <a href="/login-page" class="text-slate-600 hover:text-emerald-600 font-medium">
+        Login
+      </a>
+
+      <a href="/signup-page"
+         class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg transition">
+        Get Started
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+  <div>
+    <h2 class="text-4xl font-bold leading-tight">
+      Personalized Nutrition for
+      <span class="text-emerald-600">Hormonal Balance</span>
+    </h2>
+    <p class="mt-6 text-lg text-slate-600">
+      Track menstrual cycles, understand symptoms, and receive hormone-friendly
+      dietary guidance backed by science.
+    </p>
+    <a href="/signup-page"
+       class="inline-block mt-8 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg text-lg transition">
+      Start Your Journey
+    </a>
+  </div>
+
+  <div class="bg-gradient-to-br from-emerald-100 to-teal-50 rounded-2xl h-80 flex items-center justify-center">
+    <i class="fa-solid fa-heart-pulse text-emerald-600 text-7xl"></i>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="bg-white py-20">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10">
+
+    <!-- Menstrual Tracking -->
+    <a href="/cycle-tracker" class="block p-8 rounded-xl bg-slate-50 hover:shadow-lg transition">
+      <i class="fa-solid fa-calendar-days text-emerald-600 text-3xl"></i>
+      <h3 class="mt-4 text-xl font-semibold">Menstrual Tracking</h3>
+      <p class="mt-2 text-slate-600">
+        Cycle analysis, symptom tracking, and hormonal phase insights.
+      </p>
+    </a>
+
+    <!-- Health Analysis -->
+    <a href="/analysis" class="block p-8 rounded-xl bg-slate-50 hover:shadow-lg transition">
+      <i class="fa-solid fa-chart-line text-emerald-600 text-3xl"></i>
+      <h3 class="mt-4 text-xl font-semibold">Health Analysis</h3>
+      <p class="mt-2 text-slate-600">
+        Upload medical reports, extract metrics, and get personalized health insights powered by AI.
+      </p>
+    </a>
+
+    <!-- Diet -->
+    <div class="p-8 rounded-xl bg-slate-50 hover:shadow-lg transition">
+      <i class="fa-solid fa-apple-whole text-emerald-600 text-3xl"></i>
+      <h3 class="mt-4 text-xl font-semibold">Hormone-Friendly Diet</h3>
+      <p class="mt-2 text-slate-600">
+        Personalized meal guidance based on cycle & lifestyle.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-black text-gray-300 text-sm">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+
+    <p class="text-xs text-gray-500 mb-8 leading-relaxed">
+      NutriHormone provides educational health and nutrition information.
+      It is not intended as medical advice. Always consult a qualified
+      healthcare professional before making health decisions.
+    </p>
+
+    <div class="border-t border-gray-800 mb-10"></div>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+
+      <div>
+        <h4 class="font-semibold text-white mb-4">NutriHormone</h4>
+        <ul class="space-y-2">
+          <li><a href="/" class="hover:underline">Home</a></li>
+          <li><a href="/about" class="hover:underline">About Us</a></li>
+          <li><a href="/cycle-tracker" class="hover:underline">Cycle Tracking</a></li>
+          <li><a href="#" class="hover:underline">How It Works</a></li>
+          <li><a href="#" class="hover:underline">Science Behind It</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-white mb-4">Account</h4>
+        <ul class="space-y-2">
+          <li><a href="/login-page" class="hover:underline">Login</a></li>
+          <li><a href="/signup-page" class="hover:underline">Create Account</a></li>
+          <li><a href="/dashboard" class="hover:underline">Dashboard</a></li>
+          <li><a href="#" class="hover:underline">Profile Settings</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-white mb-4">Features</h4>
+        <ul class="space-y-2">
+          <li><a href="/cycle-tracker" class="hover:underline">Cycle Tracking</a></li>
+          <li><a href="/analysis" class="hover:underline">Health Analysis</a></li>
+          <li><a href="#" class="hover:underline">AI Diet Plans</a></li>
+          <li><a href="#" class="hover:underline">Medical Reports</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-white mb-4">For Users</h4>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:underline">For Students</a></li>
+          <li><a href="#" class="hover:underline">For Working Women</a></li>
+          <li><a href="#" class="hover:underline">PCOS Support</a></li>
+          <li><a href="#" class="hover:underline">Wellness Programs</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-white mb-4">Legal</h4>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:underline">Privacy Policy</a></li>
+          <li><a href="#" class="hover:underline">Terms of Service</a></li>
+          <li><a href="#" class="hover:underline">Data Protection</a></li>
+          <li><a href="#" class="hover:underline">Contact Support</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="border-t border-gray-800 mt-12 pt-6 flex flex-col md:flex-row justify-between text-xs text-gray-500">
+      <p>© 2026 NutriHormone. All rights reserved.</p>
+      <p class="mt-2 md:mt-0">
+        Built with care for women’s health 🩺
+      </p>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+  if (isLoggedIn) {
+    const loginLink = document.querySelector('a[href="/login-page"]');
+    if (loginLink) loginLink.style.display = 'none';
+
+    const ctaButtons = document.querySelectorAll('a[href="/signup-page"]');
+    ctaButtons.forEach(btn => {
+      btn.textContent = "Go to Dashboard";
+      btn.href = "/dashboard";
+      btn.classList.add("bg-emerald-800");
+    });
+  }
+</script>
+
+</body>
+</html>

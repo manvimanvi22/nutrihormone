@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Account | NutriHormone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="min-h-screen bg-slate-100 flex items-center justify-center">
+
+  <!-- SIGNUP CONTAINER -->
+  <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl grid md:grid-cols-2 overflow-hidden">
+
+    <!-- LEFT: BRAND / INFO -->
+    <div class="hidden md:flex flex-col justify-center px-12 bg-gradient-to-br from-emerald-600 to-teal-500 text-white">
+      <h1 class="text-3xl font-bold mb-4">NutriHormone</h1>
+      <p class="text-lg leading-relaxed">
+        Begin your journey toward better hormonal balance and smarter nutrition
+        with personalized insights built for long-term health.
+      </p>
+
+      <ul class="mt-8 space-y-4 text-sm">
+        <li class="flex items-center gap-3">
+          <i class="fa-solid fa-check"></i> Menstrual & symptom tracking
+        </li>
+        <li class="flex items-center gap-3">
+          <i class="fa-solid fa-check"></i> Hormone-friendly diet guidance
+        </li>
+        <li class="flex items-center gap-3">
+          <i class="fa-solid fa-check"></i> Sustainable wellness insights
+        </li>
+      </ul>
+    </div>
+
+    <!-- RIGHT: SIGNUP FORM -->
+    <div class="px-10 py-12">
+      <h2 class="text-2xl font-bold text-slate-800 mb-2">
+        Create Your Account
+      </h2>
+      <p class="text-slate-500 mb-8">
+        Join NutriHormone and start tracking your health
+      </p>
+
+      <!-- FORM -->
+      <form onsubmit="handleSignup(event)" class="space-y-5">
+
+        <!-- FULL NAME -->
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">
+            Full Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            required
+            class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Your name"
+          />
+        </div>
+
+        <!-- EMAIL -->
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">
+            Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <!-- PASSWORD -->
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              id="password"
+              type="password"
+              required
+              minlength="6"
+              class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Minimum 6 characters"
+            />
+            <button
+              type="button"
+              onclick="togglePassword('password','eye1')"
+              class="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+            >
+              <i id="eye1" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">
+            Confirm Password
+          </label>
+          <div class="relative">
+            <input
+              id="confirmPassword"
+              type="password"
+              required
+              class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Re-enter password"
+            />
+            <button
+              type="button"
+              onclick="togglePassword('confirmPassword','eye2')"
+              class="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+            >
+              <i id="eye2" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- TERMS -->
+        <div class="flex items-start gap-2 text-sm text-slate-600">
+          <input type="checkbox" required class="mt-1 accent-emerald-600">
+          <span>
+            I agree to the
+            <a href="#" class="text-emerald-600 hover:underline">Terms</a>
+            and
+            <a href="#" class="text-emerald-600 hover:underline">Privacy Policy</a>
+          </span>
+        </div>
+
+        <!-- SIGNUP BUTTON -->
+        <button
+          type="submit"
+          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold transition"
+        >
+          Create Account
+        </button>
+
+        <!-- ERROR -->
+        <p id="errorMsg" class="text-red-500 text-sm hidden">
+          Passwords do not match
+        </p>
+      </form>
+
+      <!-- LOGIN LINK -->
+      <p class="text-center text-sm text-slate-500 mt-8">
+        Already have an account?
+        <a href="/login-page" class="text-emerald-600 font-medium hover:underline">
+  Sign in
+</a>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- JS -->
+  <script>
+function togglePassword(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.replace("fa-eye", "fa-eye-slash");
+  } else {
+    input.type = "password";
+    icon.classList.replace("fa-eye-slash", "fa-eye");
+  }
+}

@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriHormone - Health Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --primary-light: #10b981;
+      --accent: #0ea5e9;
+      --accent-warm: #f59e0b;
+      --accent-red: #ef4444;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #f0f2f5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-tertiary: #999999;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ============= NAVIGATION ============= */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 72px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+      gap: 40px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-brand i {
+      font-size: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 32px;
+      margin-left: auto;
+    }
+
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    nav a:hover {
+      color: var(--primary);
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      transition: width 0.3s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ============= MAIN CONTENT ============= */
+    main {
+      margin-top: 72px;
+      padding: 48px;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ============= HERO SECTION ============= */
+    .hero {
+      margin-bottom: 80px;
+      animation: slideUp 0.8s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content {
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.8;
+      max-width: 600px;
+    }
+
+    /* ============= UPLOAD CARD ============= */
+    .upload-section {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 48px;
+      align-items: start;
+      margin-bottom: 80px;
+    }
+
+    .upload-card {
+      background: var(--bg-primary);
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideUp 0.8s ease 0.1s both;
+    }
+
+    .upload-card:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      border-color: var(--primary-light);
+      transform: translateY(-4px);
+    }
+
+    .card-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-title i {
+      color: var(--primary);
+      font-size: 28px;
+    }
+
+    .card-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* ============= FILE UPLOAD ============= */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.02), rgba(14, 165, 233, 0.02));
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-area::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.06), rgba(14, 165, 233, 0.06));
+    }
+
+    .upload-area:hover::before {
+      left: 100%;
+    }
+
+    .upload-area input {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .upload-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .upload-hint {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    /* ============= SELECT DROPDOWN ============= */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23059669' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    select:hover {
+      border-color: var(--primary);
+      background-color: #f0fdf4;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    /* ============= SUBMIT BUTTON ============= */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .submit-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ============= INFO CARDS ============= */
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: slideUp 0.8s ease 0.2s both;
+    }
+
+    .info-card {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+      border-color: var(--primary-light);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .info-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-card.blue h4 { color: var(--accent); }
+    .info-card.blue h4 i { color: var(--accent); }
+
+    .info-card.green h4 { color: var(--success); }
+    .info-card.green h4 i { color: var(--success); }
+
+    .info-card.warm h4 { color: var(--accent-warm); }
+    .info-card.warm h4 i { color: var(--accent-warm); }
+
+    .metrics-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .metrics-list li {
+      list-style: none;
+    }
+
+    .metrics-list li:before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    /* ============= LOADING STATE ============= */
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 60px 40px;
+      background: var(--bg-primary);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      animation: slideUp 0.6s ease;
+    }
+
+    .loading-state.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .loading-subtext {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* ============= ERROR STATE ============= */
+    .error-state {
+      display: none;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04));
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 16px;
+      padding: 32px;
+      animation: slideUp 0.6s ease;
+    }
+
+    .error-state.active {
+      display: block;
+    }
+
+    .error-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .error-header i {
+      font-size: 24px;
+      color: var(--danger);
+    }
+
+    .error-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--danger);
+    }
+
+    .error-message {
+      font-size: 14px;
+      color: #7f1d1d;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .error-btn {
+      padding: 10px 20px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .error-btn:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    /* ============= RESULTS SECTION ============= */
+    .results-section {
+      display: none;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    /* ============= STATS GRID ============= */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: all 0.3s ease;
+      animation: slideUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .stat-card:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+      border-color: var(--primary-light);
+    }
+
+    .stat-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-primary);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card.blue .stat-icon { color: var(--accent); }
+    .stat-card.green .stat-icon { color: var(--success); }
+    .stat-card.warm .stat-icon { color: var(--accent-warm); }
+    .stat-card.purple .stat-icon { color: #8b5cf6; }
+
+    /* ============= METRICS DISPLAY ============= */
+    .metrics-display {
+      background: var(--bg-primary);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 48px;
+      border: 1px solid var(--border);
+      animation: slideUp 0.8s ease 0.3s both;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .metric-item {
+      background: var(--bg-secondary);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .metric-item:hover {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.04), rgba(14, 165, 233, 0.04));
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .metric-name {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .metric-unit {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .metric-status {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .metric-status.normal {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .metric-status.warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-warm);
+    }
+
+    .metric-status.critical {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    /* ============= ALERTS ============= */
+    .alerts-section {
+      background: var(--bg-primary);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 48px;
+      border: 1px solid var(--border);
+      animation: slideUp 0.8s ease 0.4s both;
+    }
+
+    .alert-item {
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border-left: 4px solid;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .alert-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .alert-item.success {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--success);
+      color: #065f46;
+    }
+
+    .alert-item.warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: var(--accent-warm);
+      color: #78350f;
+    }
+
+    .alert-item.critical {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
+
+    /* ============= NUTRITION PLAN ============= */
+    .nutrition-section {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.05), rgba(14, 165, 233, 0.05));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      animation: slideUp 0.8s ease 0.5s both;
+    }
+
+    .nutrition-header {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nutrition-content {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .nutrition-content h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+
+    .nutrition-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .nutrition-content ul, .nutrition-content ol {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .nutrition-content li {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .nutrition-content p {
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ============= DISCLAIMER ============= */
+    .disclaimer {
+      margin-top: 32px;
+      padding: 20px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 12px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.6;
+    }
+
+    /* ============= RESPONSIVE ============= */
+    @media (max-width: 1024px) {
+      main {
+        padding: 32px;
+      }
+
+      nav {
+        padding: 0 32px;
+        gap: 20px;
+      }
+
+      nav ul {
+        gap: 20px;
+      }
+
+      .upload-section {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 0 16px;
+        gap: 16px;
+      }
+
+      nav ul {
+        display: none;
+      }
+
+      main {
+        padding: 24px 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .upload-card, .info-card, .metrics-display, .alerts-section, .nutrition-section {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .card-title {
+        font-size: 18px;
+      }
+
+      .section-title {
+        font-size: 18px;
+      }
+
+      .nutrition-header {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============= NAVIGATION ============= -->
+  <nav>
+    <a href="/" class="nav-brand">
+      <i class="fas fa-leaf"></i>
+      NutriHormone
+    </a>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/cycle-tracker">Cycle Tracker</a></li>
+    </ul>
+    <div class="nav-user">
+      <div class="nav-avatar" id="navAvatar">U</div>
+      <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============= MAIN CONTENT ============= -->
+  <main>
+    
+    <!-- ============= HERO ============= -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Your Health Intelligence Dashboard</h1>
+        <p class="hero-subtitle">Upload your medical report and receive AI-powered personalized nutrition insights backed by science. Your health, reimagined.</p>
+      </div>
+    </section>
+
+    <!-- ============= UPLOAD SECTION ============= -->
+    <section class="upload-section" id="uploadSection">
+      
+      <!-- UPLOAD CARD -->
+      <div class="upload-card">
+        <h3 class="card-title">
+          <i class="fas fa-file-medical"></i>
+          Medical Report
+        </h3>
+        <p class="card-subtitle">Upload your PDF medical report to get instant health insights powered by artificial intelligence</p>
+
+        <form id="uploadForm">
+          <!-- File Upload Area -->
+          <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-arrow-up upload-icon"></i>
+            <div class="upload-text">Click to upload</div>
+            <div class="upload-hint">or drag and drop • PDF up to 16MB</div>
+            <input type="file" id="medicalFile" accept=".pdf" required>
+          </div>
+
+          <!-- Wellness Goal -->
+          <div class="form-group">
+            <label for="wellnessGoal">Select Your Primary Health Focus</label>
+            <select id="wellnessGoal" required>
+              <option value="">Choose your wellness goal...</option>
+              <option value="General Health">General Overall Health</option>
+              <option value="Energy Levels">Energy & Vitality</option>
+              <option value="Sleep Quality">Sleep & Recovery</option>
+              <option value="Digestion">Gut Health & Digestion</option>
+              <option value="Stress Management">Stress Management</option>
+              <option value="Hormonal Balance">Hormonal Balance</option>
+            </select>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <span>Generate Your Plan</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- INFO SECTION -->
+      <div class="info-section">
+        
+        <!-- What We Analyze -->
+        <div class="info-card blue">
+          <h4>
+            <i class="fas fa-flask-vial"></i>
+            Health Metrics We Analyze
+          </h4>
+          <ul class="metrics-list">
+            <li>Blood Sugar & Glucose</li>
+            <li>Cholesterol Levels</li>
+            <li>Thyroid Function (TSH)</li>
+            <li>Vitamin D Levels</li>
+            <li>Hemoglobin & Anemia</li>
+            <li>Organ Function</li>
+            <li>Blood Cell Counts</li>
+            <li>Micronutrients Status</li>
+          </ul>
+        </div>
+
+        <!-- How It Works -->
+        <div class="info-card green">
+          <h4>
+            <i class="fas fa-robot"></i>
+            AI-Powered Analysis
+          </h4>
+          <ul class="metrics-list">
+            <li>Instant metric extraction</li>
+            <li>Intelligent health analysis</li>
+            <li>Risk assessment & alerts</li>
+            <li>ML diet prediction</li>
+            <li>Personalized nutrition plan</li>
+            <li>Lifestyle recommendations</li>
+            <li>Supplement suggestions</li>
+            <li>Progress tracking metrics</li>
+          </ul>
+        </div>
+
+        <!-- Security -->
+        <div class="info-card warm">
+          <h4>
+            <i class="fas fa-shield-check"></i>
+            Secure & Private
+          </h4>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+            Your data is encrypted, never shared, and processed with industry-leading security standards. Your privacy is our priority.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= LOADING STATE ============= -->
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <div class="loading-text">Analyzing Your Health</div>
+      <div class="loading-subtext">Extracting metrics and generating personalized recommendations (10-15 seconds)</div>
+    </div>
+
+    <!-- ============= ERROR STATE ============= -->
+    <div class="error-state" id="errorState">
+      <div class="error-header">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="error-title">Analysis Failed</div>
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+      <button class="error-btn" onclick="resetForm()">Try Again</button>
+    </div>
+
+    <!-- ============= RESULTS SECTION ============= -->
+    <div class="results-section" id="resultsSection">
+      
+      <!-- STATS CARDS -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon"><i class="fas fa-flask"></i></div>
+          <div class="stat-label">Metrics Found</div>
+          <div class="stat-value" id="metricsCount">0</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
+          <div class="stat-label">Risk Score</div>
+          <div class="stat-value" id="riskScore">0</div>
+        </div>
+        <div class="stat-card warm">
+          <div class="stat-icon"><i class="fas fa-utensils"></i></div>
+          <div class="stat-label">Recommended Diet</div>
+          <div class="stat-value" id="dietType" style="font-size: 18px;">—</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon"><i class="fas fa-star"></i></div>
+          <div class="stat-label">AI Confidence</div>
+          <div class="stat-value" id="confidence">0%</div>
+        </div>
+      </div>
+
+      <!-- METRICS DISPLAY -->
+      <div class="metrics-display">
+        <div class="section-title">
+          <i class="fas fa-chart-line"></i>
+          Extracted Health Metrics
+        </div>
+        <div class="metrics-grid" id="metricsGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- HEALTH ALERTS -->
+      <div class="alerts-section">
+        <div class="section-title">
+          <i class="fas fa-bell"></i>
+          Health Insights & Alerts
+        </div>
+        <div id="alertsList">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- NUTRITION PLAN -->
+      <div class="nutrition-section">
+        <div class="nutrition-header">
+          <i class="fas fa-leaf"></i>
+          Your Personalized Nutrition Plan
+        </div>
+        <div class="nutrition-content" id="nutritionPlan">
+          <!-- Populated by JavaScript -->
+        </div>
+        <div class="disclaimer">
+          <strong>⚕️ Medical Disclaimer:</strong> This analysis is for educational purposes only and does not replace professional medical advice. Always consult with a qualified healthcare provider before making significant dietary or health changes.
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============= JAVASCRIPT ============= -->
+  <script>
+    // ========== INITIALIZATION ==========
+    const user = JSON.parse(localStorage.getItem("nutriUser"));
+    if (!user) {
+      window.location.href = "/login-page";
+    }
+
+    document.getElementById("navAvatar").textContent = user.name.charAt(0).toUpperCase();
+
+    // ========== FILE UPLOAD ==========
+    const uploadArea = document.getElementById("uploadArea");
+    const medicalFile = document.getElementById("medicalFile");
+
+    uploadArea.addEventListener("click", () => medicalFile.click());
+
+    uploadArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = "var(--primary)";
+      uploadArea.style.background = "linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(14, 165, 233, 0.1))";
+    });
+
+    uploadArea.addEventListener("dragleave", () => {
+      uploadArea.style.borderColor = "";
+      uploadArea.style.background = "";
+    });
+
+    uploadArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = "";
+      uploadArea.style.background = "";
+      if (e.dataTransfer.files[0]?.type === "application/pdf") {
+        medicalFile.files = e.dataTransfer.files;
+      }
+    });
+
+    // ========== FORM SUBMISSION ==========
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (medicalFile.files.length === 0) {
+        showError("Please upload a PDF file");
+        return;
+      }
+
+      // Hide sections
+      document.getElementById("uploadSection").style.display = "none";
+      document.getElementById("resultsSection").classList.remove("active");
+      document.getElementById("errorState").classList.remove("active");
+      document.getElementById("loadingState").classList.add("active");
+
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append("file", medicalFile.files[0]);
+      formData.append("email", user.email);
+      formData.append("wellness_goal", document.getElementById("wellnessGoal").value);
+
+      try {
+        const response = await fetch("/analyze-health", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === "success") {
+          displayResults(data);
+          document.getElementById("loadingState").classList.remove("active");
+          document.getElementById("resultsSection").classList.add("active");
+          setTimeout(() => {
+            document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        } else {
+          showError(data.error || "Analysis failed. Please try again.");
+        }
+      } catch (error) {
+        showError("Server error: " + error.message);
+      } finally {
+        document.getElementById("loadingState").classList.remove("active");
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ========== DISPLAY RESULTS ==========
+    function displayResults(data) {
+      // Safety checks: Ensure required fields exist
+      if (!data) {
+        showError("Invalid response from server");
+        return;
+      }
+
+      const metrics = data.extracted_metrics || {};
+      const analysis = data.health_analysis || {};
+      const diet = data.diet_prediction || {};
+
+      // Update stat cards with fallbacks
+      document.getElementById("metricsCount").textContent = 
+        Object.keys(metrics).length || 0;
+      document.getElementById("riskScore").textContent = 
+        Math.round(analysis.risk_score || 0);
+      document.getElementById("dietType").textContent = 
+        diet.diet_type || "Analyzing...";
+      document.getElementById("confidence").textContent = 
+        (diet.confidence || 0) + "%";
+
+      // Display metrics
+      const metricsGrid = document.getElementById("metricsGrid");
+      metricsGrid.innerHTML = "";
+      
+      Object.entries(metrics).forEach(([key, value]) => {
+        const metric = analysis.metrics_details && analysis.metrics_details[key];
+        if (metric) {
+          const item = document.createElement("div");
+          item.className = "metric-item";
+          item.innerHTML = `
+            <div class="metric-name">${key.replace(/_/g, " ")}</div>
+            <div class="metric-value">${typeof value === 'object' ? (value.value !== undefined ? parseFloat(value.value).toFixed(1) : '—') : (typeof value === 'number' ? value.toFixed(1) : value)}</div>
+            <div class="metric-unit">${metric.unit || ""}</div>
+            <span class="metric-status ${metric.status}">${metric.status}</span>
+          `;
+          metricsGrid.appendChild(item);
+        }
+      });
+
+      // Display alerts
+      const alertsList = document.getElementById("alertsList");
+      alertsList.innerHTML = "";
+      
+      if (analysis.risk_alerts && Array.isArray(analysis.risk_alerts)) {
+        analysis.risk_alerts.forEach(alert => {
+          const alertType = alert.includes("CRITICAL") ? "critical" : 
+                           alert.includes("WARNING") ? "warning" : "success";
+          const div = document.createElement("div");
+          div.className = `alert-item ${alertType}`;
+          div.textContent = alert;
+          alertsList.appendChild(div);
+        });
+      }
+
+      // Display nutrition plan (with fallback)
+      const gemini = data.gemini_response || {};
+const dietPlan = gemini.personalized_diet || {};
+const medical = gemini.medical_analysis || {};
+const lifestyle = gemini.lifestyle_recommendations || {};
+
+let nutritionPlanHtml = "";
+
+if (medical.summary) {
+  nutritionPlanHtml += `<p><strong>Summary:</strong> ${medical.summary}</p>`;
+}
+if (dietPlan.rationale) {
+  nutritionPlanHtml += `<p><strong>Why ${dietPlan.diet_type || diet.diet_type || 'this diet'}?</strong> ${dietPlan.rationale}</p>`;
+}
+if (dietPlan.foods_include && dietPlan.foods_include.length > 0) {
+  nutritionPlanHtml += `<h4>Foods to Include</h4><ul>${dietPlan.foods_include.map(f => `<li>${f}</li>`).join("")}</ul>`;
+}
+if (dietPlan.foods_avoid && dietPlan.foods_avoid.length > 0) {
+  nutritionPlanHtml += `<h4>Foods to Avoid</h4><ul>${dietPlan.foods_avoid.map(f => `<li>${f}</li>`).join("")}</ul>`;
+}
+if (dietPlan.daily_framework) {
+  nutritionPlanHtml += `<h4>Daily Meals</h4><ul>${Object.entries(dietPlan.daily_framework).map(([meal, items]) => `<li><strong>${meal}:</strong> ${Array.isArray(items) ? items[0] : items}</li>`).join("")}</ul>`;
+}
+if (Object.keys(lifestyle).length > 0) {
+  nutritionPlanHtml += `<h4>Lifestyle Tips</h4><ul>${Object.entries(lifestyle).map(([k,v]) => `<li><strong>${k.replace(/_/g," ")}:</strong> ${v}</li>`).join("")}</ul>`;
+}
+if (!nutritionPlanHtml) {
+  nutritionPlanHtml = `<p><strong>${diet.diet_type || 'Balanced'} Diet</strong> recommended. Focus on whole foods, stay hydrated, and limit processed foods.</p>`;
+}
+
+document.getElementById("nutritionPlan").innerHTML = sanitizeHTML(nutritionPlanHtml);
+
+      // Display lifestyle recommendations if available
+      if (data.lifestyle_recommendations && Object.keys(data.lifestyle_recommendations).length > 0) {
+        const lifestyleSection = document.getElementById("lifestyleSection");
+        if (lifestyleSection) {
+          let lifestyleHTML = "<h4 style='margin: 16px 0 12px 0;'>Lifestyle Recommendations</h4><ul style='font-size: 13px; margin-left: 16px;'>";
+          for (const [key, value] of Object.entries(data.lifestyle_recommendations)) {
+            lifestyleHTML += `<li><strong>${key.replace(/_/g, " ").replace(/^\w/, c => c.toUpperCase())}:</strong> ${value}</li>`;
+          }
+          lifestyleHTML += "</ul>";
+          lifestyleSection.innerHTML = sanitizeHTML(lifestyleHTML);
+          lifestyleSection.style.display = "block";
+        }
+      }
+
+      // Display supplements if available
+      if (data.supplements && Array.isArray(data.supplements) && data.supplements.length > 0) {
+        const supplementsSection = document.getElementById("supplementsSection");
+        if (supplementsSection) {
+          let supplementsHTML = "<h4 style='margin: 16px 0 12px 0;'>Recommended Supplements</h4><ul style='font-size: 13px; margin-left: 16px;'>";
+          data.supplements.forEach(supplement => {
+            supplementsHTML += `<li>${supplement}</li>`;
+          });
+          supplementsHTML += "</ul>";
+          supplementsSection.innerHTML = sanitizeHTML(supplementsHTML);
+          supplementsSection.style.display = "block";
+        }
+      }
+
+      // Display doctor alert if needed (Phase 5)
+      if (data.doctor_review_needed && data.doctor_alert) {
+        const doctorAlertSection = document.getElementById("doctorAlertSection");
+        if (doctorAlertSection) {
+          const alertMessage = data.doctor_alert.reason || 
+            "One or more metrics suggest medical review may be beneficial.";
+          document.getElementById("doctorAlertMessage").textContent = alertMessage;
+          doctorAlertSection.style.display = "block";
+        }
+      }
+    }
+
+    // ========== UTILITIES ==========
+    function showError(message) {
+      document.getElementById("errorMessage").textContent = message;
+      document.getElementById("loadingState").classList.remove("active");
+      document.getElementById("errorState").classList.add("active");
+    }
+
+    function resetForm() {
+      medicalFile.value = "";
+      document.getElementById("uploadForm").reset();
+      document.getElementById("uploadSection").style.display = "grid";
+      document.getElementById("resultsSection").classList.remove("active");
+      document.getElementById("errorState").classList.remove("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function sanitizeHTML(html) {
+      // Remove potentially dangerous script tags but preserve HTML formatting
+      // This allows nutrition plan HTML to render properly
+      return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    }
+
+    function logout() {
+      localStorage.removeItem("nutriUser");
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "/";
+    }
+  </script>
+
+</body>
+</html>

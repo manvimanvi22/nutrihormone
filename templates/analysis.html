@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Analysis Dashboard | NutriHormone</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary: #059669;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1f2937;
+      --light: #f9fafb;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .loading-spinner {
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .metric-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid var(--primary);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .metric-card.warning {
+      border-left-color: var(--warning);
+    }
+    
+    .metric-card.critical {
+      border-left-color: var(--danger);
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-badge.normal {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-badge.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-badge.critical {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+    
+    .risk-gauge {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 32px;
+      margin: 0 auto;
+    }
+    
+    .risk-gauge.low {
+      background: conic-gradient(var(--success) 0deg, var(--success) 120deg, #e5e7eb 120deg);
+    }
+    
+    .risk-gauge.medium {
+      background: conic-gradient(var(--warning) 0deg, var(--warning) 180deg, #e5e7eb 180deg);
+    }
+    
+    .risk-gauge.high {
+      background: conic-gradient(var(--danger) 0deg, var(--danger) 240deg, #e5e7eb 240deg);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .chart-wrapper {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="text-gray-800">
+
+<!-- HEADER -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-heartbeat text-2xl" style="color: var(--primary);"></i>
+      <h1 class="text-2xl font-bold" style="color: var(--primary);">HealthInsight</h1>
+    </div>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+      <i class="fas fa-sign-out-alt mr-2"></i>Logout
+    </button>
+  </div>
+</header>
+
+<!-- MAIN CONTAINER -->
+<main class="max-w-7xl mx-auto px-6 py-8">
+  
+  <!-- UPLOAD SECTION -->
+  <div id="uploadSection" class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+    <h2 class="text-2xl font-bold mb-6">Upload Medical Report</h2>
+    
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Upload Area -->
+      <div class="flex flex-col justify-center">
+        <div class="border-2 border-dashed border-emerald-300 rounded-xl p-8 text-center bg-emerald-50 hover:bg-emerald-100 transition cursor-pointer" id="uploadArea">
+          <input type="file" id="medicalFile" accept=".pdf" class="hidden">
+          <i class="fas fa-cloud-arrow-up text-5xl text-emerald-500 mb-4"></i>
+          <p class="text-emerald-700 font-semibold text-lg">Click to upload PDF</p>
+          <p class="text-emerald-600 text-sm mt-2">or drag and drop your medical report</p>
+          <p class="text-emerald-500 text-xs mt-4">Supports: PDF files only</p>
+        </div>
+        
+        <!-- Wellness Goal Selection -->
+        <div class="mt-6">
+          <label class="block text-sm font-semibold mb-2">Wellness Goal</label>
+          <select id="wellnessGoal" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+            <option value="General Health">General Overall Health</option>
+            <option value="Energy Levels">Energy & Vitality</option>
+            <option value="Sleep Quality">Sleep & Recovery</option>
+            <option value="Digestion">Gut Health & Digestion</option>
+            <option value="Stress Management">Stress Management</option>
+            <option value="Hormonal Balance">Hormonal Balance</option>
+          </select>
+        </div>
+        
+        <button onclick="analyzeReport()" id="analyzeBtn" class="w-full mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50">
+          <i class="fas fa-wand-magic-sparkles"></i>
+          <span id="analyzeBtnText">Analyze Report</span>
+        </button>
+      </div>
+      
+      <!-- Info Section -->
+      <div class="flex flex-col justify-center">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-4">
+          <h3 class="font-semibold text-blue-900 mb-3">
+            <i class="fas fa-info-circle mr-2"></i>What We Analyze
+          </h3>
+          <ul class="text-sm text-blue-800 space-y-2">
+            <li><strong>Blood Chemistry:</strong> Glucose, cholesterol, triglycerides</li>
+            <li><strong>Thyroid Function:</strong> TSH, T3, T4 levels</li>
+            <li><strong>Blood Counts:</strong> Hemoglobin, WBC, RBC, platelets</li>
+            <li><strong>Vitamin Levels:</strong> Vitamin D, Iron, Ferritin</li>
+            <li><strong>Organ Function:</strong> Kidney & liver markers</li>
+          </ul>
+        </div>
+        
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+          <h3 class="font-semibold text-emerald-900 mb-3">
+            <i class="fas fa-shield-heart mr-2"></i>How It Works
+          </h3>
+          <ol class="text-sm text-emerald-800 space-y-2">
+            <li>✓ Upload your medical report (PDF)</li>
+            <li>✓ AI extracts all health metrics</li>
+            <li>✓ ML model analyzes patterns</li>
+            <li>✓ Personalized health insights generated</li>
+            <li>✓ Actionable nutrition recommendations</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- LOADING STATE -->
+  <div id="loadingSection" class="hidden bg-white rounded-2xl shadow-lg p-12 text-center mb-8">
+    <div class="loading-spinner mx-auto mb-6"></div>
+    <p class="text-lg font-semibold text-gray-700" id="loadingText">Analyzing your medical report...</p>
+    <p class="text-sm text-gray-500 mt-2">This may take a moment as we extract metrics and generate insights</p>
+  </div>
+  
+  <!-- ERROR STATE -->
+  <div id="errorSection" class="hidden bg-red-50 border border-red-200 rounded-2xl shadow-lg p-8 mb-8">
+    <h3 class="text-lg font-bold text-red-800 mb-2">
+      <i class="fas fa-exclamation-circle mr-2"></i>Analysis Error
+    </h3>
+    <p id="errorMessage" class="text-red-700"></p>
+    <button onclick="resetAnalysis()" class="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition">
+      Try Again
+    </button>
+  </div>
+  
+  <!-- RESULTS SECTION -->
+  <div id="resultsSection" class="hidden">
+    
+    <!-- HEALTH OVERVIEW -->
+    <div class="grid md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-emerald-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Total Metrics Found</p>
+            <p class="text-3xl font-bold text-emerald-600" id="totalMetrics">0</p>
+          </div>
+          <i class="fas fa-list-check text-4xl text-emerald-200"></i>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Normal Levels</p>
+            <p class="text-3xl font-bold text-green-600" id="normalCount">0</p>
+          </div>
+          <i class="fas fa-check-circle text-4xl text-green-200"></i>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-amber-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Warning Levels</p>
+            <p class="text-3xl font-bold text-amber-600" id="warningCount">0</p>
+          </div>
+          <i class="fas fa-exclamation-circle text-4xl text-amber-200"></i>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Critical Levels</p>
+            <p class="text-3xl font-bold text-red-600" id="criticalCount">0</p>
+          </div>
+          <i class="fas fa-alert-circle text-4xl text-red-200"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DOCTOR ALERT SECTION (Phase 5) -->
+    <div id="doctorAlertSection" class="hidden mb-8 p-6 rounded-2xl border-2 border-red-500 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-triangle text-3xl text-red-600"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-xl font-bold text-red-900 mb-2">⚠️ Medical Review Recommended</h3>
+          <p id="doctorAlertMessage" class="text-red-800 mb-3">Based on your health metrics, we recommend scheduling a consultation with your healthcare provider.</p>
+          <div id="doctorAlertFindings" class="bg-red-100 rounded-lg p-3 mb-3 text-sm text-red-800">
+            <!-- Findings will be populated here -->
+          </div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="inline-block px-3 py-1 rounded-full text-white font-semibold text-sm" id="urgencyBadge">URGENT</span>
+            <span id="urgencyText" class="text-red-700 font-semibold"></span>
+          </div>
+          <button onclick="scheduleDoctor()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+            <i class="fas fa-calendar-check"></i>
+            Schedule Doctor Visit
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- RISK SCORE & OVERVIEW -->
+    <div class="grid md:grid-cols-3 gap-8 mb-8">
+      
+      <!-- Overall Risk Score -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Overall Health Risk</h3>
+        <div id="riskGauge" class="risk-gauge low mb-4">75</div>
+        <p class="text-center text-gray-600 text-sm">
+          <span id="riskLevel">Low Risk</span> - Your health metrics show <span id="riskDescription">mostly normal</span> values
+        </p>
+      </div>
+      
+      <!-- Health Status Distribution -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 chart-wrapper">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Metric Status Distribution</h3>
+        <div class="chart-container">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Metabolic Health -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Metabolic Health</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium text-gray-700">Glucose Control</span>
+              <span id="glucoseScore" class="text-sm font-bold text-emerald-600">85%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="glucoseBar" class="bg-emerald-600 h-2 rounded-full" style="width: 85%"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium text-gray-700">Lipid Panel</span>
+              <span id="lipidScore" class="text-sm font-bold text-emerald-600">72%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="lipidBar" class="bg-emerald-600 h-2 rounded-full" style="width: 72%"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium text-gray-700">Thyroid Function</span>
+              <span id="thyroidScore" class="text-sm font-bold text-emerald-600">80%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="thyroidBar" class="bg-emerald-600 h-2 rounded-full" style="width: 80%"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium text-gray-700">Blood Counts</span>
+              <span id="bloodScore" class="text-sm font-bold text-emerald-600">78%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="bloodBar" class="bg-emerald-600 h-2 rounded-full" style="width: 78%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DETAILED METRICS -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+      <h3 class="text-xl font-bold text-gray-800 mb-6">Detailed Health Metrics</h3>
+      <div id="metricsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Metrics will be populated here -->
+      </div>
+    </div>
+    
+    <!-- KEY FINDINGS & RISKS -->
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      
+      <!-- Risks & Alerts -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">
+          <i class="fas fa-exclamation-triangle text-amber-600 mr-2"></i>Health Alerts
+        </h3>
+        <div id="risksContainer" class="space-y-4">
+          <!-- Risks will be populated here -->
+        </div>
+      </div>
+      
+      <!-- Diet Recommendation -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">
+          <i class="fas fa-utensils text-emerald-600 mr-2"></i>AI Diet Recommendation
+        </h3>
+        <div class="space-y-4">
+          <div class="bg-emerald-50 rounded-xl p-4 border-l-4 border-emerald-600">
+            <p class="text-sm text-gray-600 mb-2">Recommended Diet Type</p>
+            <p class="text-2xl font-bold text-emerald-700" id="dietType">Balanced</p>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-4">
+            <p class="text-sm text-gray-600 mb-2">Prediction Confidence</p>
+            <div class="flex items-center gap-3">
+              <div class="flex-1">
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div id="confidenceBar" class="bg-blue-600 h-3 rounded-full" style="width: 75%"></div>
+                </div>
+              </div>
+              <p class="text-lg font-bold text-blue-700" id="confidenceScore">75%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CHARTS: COMPARATIVE ANALYSIS -->
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      
+      <!-- Blood Chemistry Levels -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 chart-wrapper">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Blood Chemistry Analysis</h3>
+        <div class="chart-container">
+          <canvas id="bloodChemistryChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Vitamin & Mineral Levels -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 chart-wrapper">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Micronutrient Status</h3>
+        <div class="chart-container">
+          <canvas id="micronutrientsChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Organ Function -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 chart-wrapper">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Organ Function Markers</h3>
+        <div class="chart-container">
+          <canvas id="organFunctionChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Health Trend -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 chart-wrapper">
+        <h3 class="text-lg font-bold text-gray-700 mb-6">Risk Category Breakdown</h3>
+        <div class="chart-container">
+          <canvas id="riskBreakdownChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- AI NUTRITION PLAN -->
+    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl shadow-lg p-8 border border-emerald-200 mb-8">
+      <h3 class="text-2xl font-bold text-emerald-900 mb-6">
+        <i class="fas fa-leaf text-emerald-600 mr-2"></i>Personalized Nutrition Plan
+      </h3>
+      <div id="nutritionPlan" class="prose prose-sm max-w-none text-gray-700">
+        <!-- AI nutrition plan will be populated here -->
+      </div>
+    </div>
+    
+  </div>
+  
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-400 text-sm mt-12">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <p class="text-xs">
+      <strong>Medical Disclaimer:</strong> This analysis is for educational purposes only and does not replace professional medical advice. 
+      Always consult a qualified healthcare provider for medical concerns.
+    </p>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script>
+  // ========== GLOBAL STATE ==========
+  let currentAnalysis = null;
+  let charts = {};
+  
+  // ========== FILE UPLOAD HANDLING ==========
+  const uploadArea = document.getElementById('uploadArea');
+  const medicalFile = document.getElementById('medicalFile');
+  
+  uploadArea.addEventListener('click', () => medicalFile.click());
+  
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.background = '#d1fae5';
+  });
+  
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.background = '';
+  });
+  
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.background = '';
+    if (e.dataTransfer.files[0].type === 'application/pdf') {
+      medicalFile.files = e.dataTransfer.files;
+    }
+  });
+  
+  // ========== ANALYSIS FUNCTION ==========
+  async function analyzeReport() {
+    const user = JSON.parse(localStorage.getItem('nutriUser'));
+    
+    if (!user) {
+      alert('Please log in first');
+      window.location.href = '/login-page';
+      return;
+    }
+    
+    if (medicalFile.files.length === 0) {
+      alert('Please upload a PDF file');
+      return;
+    }
+    
+    // Show loading
+    document.getElementById('uploadSection').classList.add('hidden');
+    document.getElementById('loadingSection').classList.remove('hidden');
+    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('errorSection').classList.add('hidden');
+    
+    const formData = new FormData();
+    formData.append('file', medicalFile.files[0]);
+    formData.append('email', user.email);
+    formData.append('wellness_goal', document.getElementById('wellnessGoal').value);
+    
+    try {
+      const response = await fetch('/analyze-health', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        currentAnalysis = data;
+        displayResults(data);
+        document.getElementById('resultsSection').classList.remove('hidden');
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        showError(data.error || 'Analysis failed');
+      }
+    } catch (error) {
+      console.error(error);
+      showError('Server error. Please try again.');
+    } finally {
+      document.getElementById('loadingSection').classList.add('hidden');
+    }
+  }
+  
+  // ========== DISPLAY RESULTS ==========
+  function displayResults(data) {
+    // Map actual API response fields
+    const analysis = data.health_analysis || {};
+    const metricsDetails = analysis.metrics_details || {};
+    const riskAlerts = analysis.risk_alerts || [];
+    const riskScore = analysis.risk_score || 0;
+    const extractedMetrics = data.extracted_metrics || {};
+
+    // Build viz object from actual API data
+    const metricValues = Object.values(metricsDetails);
+    const viz = {
+      risk_score: riskScore,
+      metrics_overview: {
+        total_metrics: metricValues.length,
+        normal_count: metricValues.filter(m => m.status === 'normal').length,
+        warning_count: metricValues.filter(m => m.status === 'warning').length,
+        critical_count: metricValues.filter(m => m.status === 'critical').length
+      },
+      metrics_for_charts: metricsDetails
+    };
+
+    // Update overview cards
+    document.getElementById('totalMetrics').textContent = viz.metrics_overview.total_metrics;
+    document.getElementById('normalCount').textContent = viz.metrics_overview.normal_count;
+    document.getElementById('warningCount').textContent = viz.metrics_overview.warning_count;
+    document.getElementById('criticalCount').textContent = viz.metrics_overview.critical_count;
+
+    // Update metabolic health bars from actual metrics
+    updateMetabolicBars(extractedMetrics);
+
+    // Update risk gauge
+    updateRiskGauge(viz.risk_score);
+
+    // Display metrics
+    displayMetrics(viz.metrics_for_charts);
+
+    // Display risks from actual risk_alerts
+    displayRisks(riskAlerts);
+
+    // Display doctor alerts (Phase 5)
+    if (data.doctor_review_needed) {
+      displayDoctorAlert({ needs_medical_review: true, critical_findings: riskAlerts, urgency_level: 'normal' });
+    }
+
+    // Display diet recommendation
+    displayDietRecommendation(data.diet_prediction || {});
+
+    // Display nutrition plan from gemini_response
+    displayNutritionPlan(data.gemini_response);
+
+    // Create charts
+    createCharts(extractedMetrics, viz.metrics_for_charts);
+  }
+
+  // ========== METABOLIC HEALTH BARS ==========
+  function updateMetabolicBars(extracted) {
+    // Glucose score: 100 = normal (70-100), lower if high
+    const glucose = extracted.glucose || null;
+    const glucoseScore = glucose ? Math.max(0, Math.min(100, glucose <= 100 ? 100 : glucose <= 126 ? 70 : 40)) : 85;
+    document.getElementById('glucoseScore').textContent = glucoseScore + '%';
+    document.getElementById('glucoseBar').style.width = glucoseScore + '%';
+
+    // Lipid score based on cholesterol/triglycerides
+    const chol = extracted.cholesterol_total || null;
+    const lipidScore = chol ? Math.max(0, Math.min(100, chol < 200 ? 90 : chol < 240 ? 65 : 40)) : 72;
+    document.getElementById('lipidScore').textContent = lipidScore + '%';
+    document.getElementById('lipidBar').style.width = lipidScore + '%';
+
+    // Thyroid score based on TSH
+    const tsh = extracted.tsh || null;
+    const thyroidScore = tsh ? Math.max(0, Math.min(100, tsh >= 0.4 && tsh <= 4.0 ? 95 : 50)) : 80;
+    document.getElementById('thyroidScore').textContent = thyroidScore + '%';
+    document.getElementById('thyroidBar').style.width = thyroidScore + '%';
+
+    // Blood score based on hemoglobin
+    const hgb = extracted.hemoglobin || null;
+    const bloodScore = hgb ? Math.max(0, Math.min(100, hgb >= 12 ? 90 : hgb >= 10 ? 65 : 40)) : 78;
+    document.getElementById('bloodScore').textContent = bloodScore + '%';
+    document.getElementById('bloodBar').style.width = bloodScore + '%';
+  }
+  
+  // ========== UPDATE RISK GAUGE ==========
+  function updateRiskGauge(riskScore) {
+    const gauge = document.getElementById('riskGauge');
+    const riskLevel = document.getElementById('riskLevel');
+    const riskDesc = document.getElementById('riskDescription');
+    
+    gauge.textContent = Math.round(riskScore);
+    
+    if (riskScore < 30) {
+      gauge.className = 'risk-gauge low';
+      riskLevel.textContent = 'Low Risk';
+      riskDesc.textContent = 'mostly normal values';
+    } else if (riskScore < 60) {
+      gauge.className = 'risk-gauge medium';
+      riskLevel.textContent = 'Moderate Risk';
+      riskDesc.textContent = 'some areas need attention';
+    } else {
+      gauge.className = 'risk-gauge high';
+      riskLevel.textContent = 'High Risk';
+      riskDesc.textContent = 'multiple areas require focus';
+    }
+  }
+  
+  // ========== DISPLAY METRICS ==========
+  function displayMetrics(metrics) {
+    const grid = document.getElementById('metricsGrid');
+    grid.innerHTML = '';
+    
+    for (const [key, metric] of Object.entries(metrics)) {
+      if (!metric.value) continue;
+      
+      const card = document.createElement('div');
+      card.className = `metric-card fade-in ${metric.status || 'normal'}`;
+      
+      const value = typeof metric.value === 'number' ? metric.value.toFixed(1) : metric.value;
+      
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+          <h4 class="font-semibold text-gray-800 capitalize">${key.replace(/_/g, ' ')}</h4>
+          <span class="status-badge ${metric.status || 'normal'}">${metric.status || 'normal'}</span>
+        </div>
+        <p class="text-2xl font-bold text-emerald-600">${value}</p>
+        <p class="text-xs text-gray-500 mt-1">${metric.unit || ''}</p>
+      `;
+      
+      grid.appendChild(card);
+    }
+  }
+  
+  // ========== DISPLAY RISKS ==========
+  function displayRisks(risks) {
+    const container = document.getElementById('risksContainer');
+    container.innerHTML = '';
+    
+    if (!risks || risks.length === 0) {
+      container.innerHTML = '<p class="text-green-700 font-semibold">✓ No major health alerts detected</p>';
+      return;
+    }
+    
+    risks.forEach(risk => {
+      const alert = document.createElement('div');
+      alert.className = 'bg-amber-50 border-l-4 border-amber-600 p-4 rounded-lg fade-in';
+      alert.innerHTML = `<p class="text-amber-900 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>${risk}</p>`;
+      container.appendChild(alert);
+    });
+  }
+  
+  // ========== DISPLAY DOCTOR ALERT (Phase 5) ==========
+  function displayDoctorAlert(alert) {
+    const section = document.getElementById('doctorAlertSection');
+    
+    if (!alert.needs_medical_review) {
+      section.classList.add('hidden');
+      return;
+    }
+    
+    // Get urgency color
+    const urgencyBadge = document.getElementById('urgencyBadge');
+    const urgencyText = document.getElementById('urgencyText');
+    
+    if (alert.urgency_level === 'critical') {
+      urgencyBadge.textContent = '🚨 CRITICAL';
+      urgencyBadge.className = 'inline-block px-3 py-1 rounded-full text-white font-semibold text-sm bg-red-600';
+      urgencyText.textContent = 'Requires immediate medical attention';
+    } else if (alert.urgency_level === 'high') {
+      urgencyBadge.textContent = '⚠️ HIGH PRIORITY';
+      urgencyBadge.className = 'inline-block px-3 py-1 rounded-full text-white font-semibold text-sm bg-orange-600';
+      urgencyText.textContent = 'Schedule appointment within 1-2 weeks';
+    } else {
+      urgencyBadge.textContent = '📋 FOLLOW-UP';
+      urgencyBadge.className = 'inline-block px-3 py-1 rounded-full text-white font-semibold text-sm bg-yellow-600';
+      urgencyText.textContent = 'Schedule routine check-up';
+    }
+    
+    // Display findings
+    const findingsDiv = document.getElementById('doctorAlertFindings');
+    if (alert.critical_findings && alert.critical_findings.length > 0) {
+      findingsDiv.innerHTML = '<strong>Key Findings:</strong><ul>' + 
+        alert.critical_findings.map(f => `<li>• ${f}</li>`).join('') + 
+        '</ul>';
+    }
+    
+    // Show section
+    section.classList.remove('hidden');
+  }
+  
+  // ========== DISPLAY DIET RECOMMENDATION ==========
+  function displayDietRecommendation(prediction) {
+    if (!prediction) return;
+    document.getElementById('dietType').textContent = prediction.diet_type || 'Balanced';
+    const confidence = prediction.confidence || 0;
+    document.getElementById('confidenceScore').textContent = confidence.toFixed(1) + '%';
+    document.getElementById('confidenceBar').style.width = confidence + '%';
+  }
+  
+  // ========== DISPLAY NUTRITION PLAN ==========
+  function displayNutritionPlan(geminiResponse) {
+    const container = document.getElementById('nutritionPlan');
+
+    if (geminiResponse && geminiResponse.personalized_diet) {
+      const diet = geminiResponse.personalized_diet;
+      const medical = geminiResponse.medical_analysis || {};
+      const lifestyle = geminiResponse.lifestyle_recommendations || {};
+
+      let html = '';
+
+      // Summary
+      if (medical.summary) {
+        html += `<div class="bg-white rounded-xl p-5 border border-emerald-100 mb-4">
+          <h4 class="font-bold text-emerald-800 mb-2"><i class="fas fa-clipboard-list mr-2"></i>Medical Summary</h4>
+          <p class="text-sm text-gray-600">${medical.summary}</p>
+          ${medical.key_findings && medical.key_findings.length > 0 ? `<ul class="mt-2 space-y-1">${medical.key_findings.slice(0,3).map(f => `<li class="text-xs text-gray-500">• ${f}</li>`).join('')}</ul>` : ''}
+        </div>`;
+      }
+
+      // Rationale
+      if (diet.rationale) {
+        html += `<div class="bg-emerald-50 rounded-xl p-4 border-l-4 border-emerald-500 mb-4">
+          <p class="text-sm font-semibold text-emerald-800 mb-1">Why ${diet.diet_type || 'this diet'}?</p>
+          <p class="text-sm text-gray-700">${diet.rationale}</p>
+        </div>`;
+      }
+
+      // Daily meals
+      if (diet.daily_framework && Object.keys(diet.daily_framework).length > 0) {
+        html += `<div class="bg-white rounded-xl p-5 border border-gray-100 mb-4">
+          <h4 class="font-bold text-gray-800 mb-3"><i class="fas fa-calendar-day mr-2 text-emerald-500"></i>Daily Meal Framework</h4>
+          <div class="grid md:grid-cols-3 gap-3">`;
+        for (const [meal, desc] of Object.entries(diet.daily_framework)) {
+          html += `<div class="bg-emerald-50 rounded-lg p-3">
+            <p class="font-semibold text-emerald-700 capitalize text-sm mb-1">${meal}</p>
+            <p class="text-xs text-gray-600">${desc}</p>
+          </div>`;
+        }
+        html += `</div></div>`;
+      }
+
+      // Foods include/avoid
+      if ((diet.foods_include && diet.foods_include.length > 0) || (diet.foods_avoid && diet.foods_avoid.length > 0)) {
+        html += `<div class="grid md:grid-cols-2 gap-4 mb-4">`;
+        if (diet.foods_include && diet.foods_include.length > 0) {
+          html += `<div class="bg-green-50 rounded-xl p-4 border border-green-100">
+            <h4 class="font-bold text-green-800 mb-2"><i class="fas fa-check-circle mr-2"></i>Foods to Include</h4>
+            <ul class="space-y-1">${diet.foods_include.slice(0,6).map(f => `<li class="text-sm text-green-700">✓ ${f}</li>`).join('')}</ul>
+          </div>`;
+        }
+        if (diet.foods_avoid && diet.foods_avoid.length > 0) {
+          html += `<div class="bg-red-50 rounded-xl p-4 border border-red-100">
+            <h4 class="font-bold text-red-800 mb-2"><i class="fas fa-times-circle mr-2"></i>Foods to Avoid</h4>
+            <ul class="space-y-1">${diet.foods_avoid.slice(0,6).map(f => `<li class="text-sm text-red-700">✗ ${f}</li>`).join('')}</ul>
+          </div>`;
+        }
+        html += `</div>`;
+      }
+
+      // Lifestyle
+      if (lifestyle && Object.keys(lifestyle).length > 0) {
+        html += `<div class="bg-white rounded-xl p-5 border border-teal-100">
+          <h4 class="font-bold text-teal-800 mb-3"><i class="fas fa-person-running mr-2 text-teal-500"></i>Lifestyle Recommendations</h4>
+          <div class="grid md:grid-cols-2 gap-3">`;
+        for (const [key, val] of Object.entries(lifestyle)) {
+          html += `<div class="flex gap-2 items-start">
+            <i class="fas fa-circle text-teal-400 text-xs mt-1.5 flex-shrink-0"></i>
+            <div><p class="text-xs font-semibold text-teal-700 capitalize">${key.replace(/_/g,' ')}</p>
+            <p class="text-xs text-gray-600">${val}</p></div>
+          </div>`;
+        }
+        html += `</div></div>`;
+      }
+
+      container.innerHTML = html;
+    } else {
+      // Fallback plain text
+      container.innerHTML = `<div class="bg-white rounded-xl p-5 border border-emerald-100">
+        <p class="text-gray-600 text-sm mb-4">Personalised nutrition plan based on your health metrics:</p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-green-50 rounded-lg p-4">
+            <p class="font-semibold text-green-700 mb-2">General Tips</p>
+            <ul class="text-sm text-green-600 space-y-1">
+              <li>✓ Focus on whole, unprocessed foods</li>
+              <li>✓ Stay hydrated — 8+ glasses of water daily</li>
+              <li>✓ Include lean proteins and vegetables</li>
+              <li>✓ Limit refined sugars and processed foods</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 rounded-lg p-4">
+            <p class="font-semibold text-blue-700 mb-2">Lifestyle</p>
+            <ul class="text-sm text-blue-600 space-y-1">
+              <li>✓ 30 min of moderate exercise daily</li>
+              <li>✓ 7–8 hours of quality sleep</li>
+              <li>✓ Manage stress with mindfulness</li>
+              <li>✓ Follow up with your doctor regularly</li>
+            </ul>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+  
+  // ========== CREATE CHARTS ==========
+  function createCharts(extracted, metrics) {
+    createStatusChart(metrics);
+    createBloodChemistryChart(extracted);
+    createMicronutrientsChart(extracted);
+    createOrganFunctionChart(extracted);
+    createRiskBreakdownChart(currentAnalysis.health_analysis);
+  }
+  
+  // ========== STATUS CHART ==========
+  function createStatusChart(metrics) {
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    
+    const normal = Object.values(metrics).filter(m => m.status === 'normal').length;
+    const warning = Object.values(metrics).filter(m => m.status === 'warning').length;
+    const critical = Object.values(metrics).filter(m => m.status === 'critical').length;
+    
+    if (charts.status) charts.status.destroy();
+    
+    charts.status = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Normal', 'Warning', 'Critical'],
+        datasets: [{
+          data: [normal || 1, warning, critical],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          borderColor: ['white', 'white', 'white'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
+  
+  // ========== BLOOD CHEMISTRY CHART ==========
+  function createBloodChemistryChart(extracted) {
+    const ctx = document.getElementById('bloodChemistryChart').getContext('2d');
+    
+    const labels = [], data = [], colors = [];
+    const fields = { 'Glucose': [extracted.glucose, '#10b981'], 'Cholesterol': [extracted.cholesterol_total, '#f59e0b'], 'HDL': [extracted.hdl, '#3b82f6'], 'LDL': [extracted.ldl, '#8b5cf6'], 'Triglycerides': [extracted.triglycerides, '#ec4899'] };
+    for (const [label, [val, color]] of Object.entries(fields)) {
+      if (val) { labels.push(label); data.push(val); colors.push(color); }
+    }
+
+    if (charts.bloodChemistry) charts.bloodChemistry.destroy();
+    
+    charts.bloodChemistry = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels.length > 0 ? labels : ['No Data'],
+        datasets: [{
+          label: 'Values',
+          data: data.length > 0 ? data : [0],
+          backgroundColor: colors.length > 0 ? colors : ['#e5e7eb'],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+  
+  // ========== MICRONUTRIENTS CHART ==========
+  function createMicronutrientsChart(extracted) {
+    const ctx = document.getElementById('micronutrientsChart').getContext('2d');
+    
+    const labels = [], data = [];
+    const fields = { 'Vitamin D': extracted.vitamin_d, 'Iron': extracted.iron, 'Ferritin': extracted.ferritin, 'Hemoglobin': extracted.hemoglobin ? extracted.hemoglobin * 5 : null, 'TSH': extracted.tsh ? extracted.tsh * 10 : null };
+    for (const [label, val] of Object.entries(fields)) {
+      if (val) { labels.push(label); data.push(val); }
+    }
+
+    if (charts.micronutrients) charts.micronutrients.destroy();
+    
+    charts.micronutrients = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: labels.length > 0 ? labels : ['No Data'],
+        datasets: [{
+          label: 'Micronutrient Levels',
+          data: data.length > 0 ? data : [0],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderWidth: 2,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { r: { beginAtZero: true } }
+      }
+    });
+  }
+  
+  // ========== ORGAN FUNCTION CHART ==========
+  function createOrganFunctionChart(extracted) {
+    const ctx = document.getElementById('organFunctionChart').getContext('2d');
+    
+    const labels = ['Creatinine (x50)', 'ALT', 'AST', 'Ref. BP'];
+    const data = [
+      (extracted.creatinine || 0) * 50,
+      extracted.alt || 0,
+      extracted.ast || 0,
+      120
+    ];
+    
+    if (charts.organFunction) charts.organFunction.destroy();
+    
+    charts.organFunction = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Organ Function Markers',
+          data,
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#8b5cf6',
+          pointBorderColor: 'white',
+          pointBorderWidth: 2,
+          pointRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+  
+  // ========== RISK BREAKDOWN CHART ==========
+  function createRiskBreakdownChart(analysis) {
+    const ctx = document.getElementById('riskBreakdownChart').getContext('2d');
+    
+    const riskCategories = { 'Metabolic': 0, 'Cardiovascular': 0, 'Thyroid': 0, 'Nutritional': 0, 'Other': 0 };
+    const alerts = analysis.risk_alerts || [];
+
+    alerts.forEach(risk => {
+      if (risk.includes('Glucose') || risk.includes('glucose')) riskCategories['Metabolic']++;
+      else if (risk.includes('Cholesterol') || risk.includes('cholesterol')) riskCategories['Cardiovascular']++;
+      else if (risk.includes('TSH') || risk.includes('Thyroid')) riskCategories['Thyroid']++;
+      else if (risk.includes('Vitamin') || risk.includes('Anemia') || risk.includes('hemoglobin')) riskCategories['Nutritional']++;
+      else riskCategories['Other']++;
+    });
+
+    if (Object.values(riskCategories).every(v => v === 0)) riskCategories['Other'] = 1;
+    
+    if (charts.riskBreakdown) charts.riskBreakdown.destroy();
+    
+    charts.riskBreakdown = new Chart(ctx, {
+      type: 'polarArea',
+      data: {
+        labels: Object.keys(riskCategories),
+        datasets: [{
+          data: Object.values(riskCategories),
+          backgroundColor: [
+            'rgba(239, 68, 68, 0.6)', 'rgba(249, 115, 22, 0.6)',
+            'rgba(245, 158, 11, 0.6)', 'rgba(59, 130, 246, 0.6)',
+            'rgba(139, 92, 246, 0.6)'
+          ],
+          borderColor: ['#ef4444', '#f97316', '#f59e0b', '#3b82f6', '#8b5cf6'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { r: { beginAtZero: true } }
+      }
+    });
+  }
+  
+  // ========== ERROR HANDLING ==========
+  function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorSection').classList.remove('hidden');
+    document.getElementById('loadingSection').classList.add('hidden');
+  }
+  
+  function resetAnalysis() {
+    document.getElementById('uploadSection').classList.remove('hidden');
+    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('errorSection').classList.add('hidden');
+    medicalFile.value = '';
+  }
+  
+  // ========== SCHEDULE DOCTOR VISIT ==========
+  function scheduleDoctor() {
+    const user = JSON.parse(localStorage.getItem('nutriUser'));
+    const message = `I would like to schedule a doctor visit. My health analysis shows findings that require medical attention.\n\nEmail: ${user?.email || 'Not provided'}`;
+    
+    // Open email or call to action
+    alert('Please contact your healthcare provider to schedule an appointment.\n\n' + message);
+    
+    // Optional: Could integrate with scheduling service or send email here
+  }
+  
+  // ========== LOGOUT ==========
+  function logout() {
+    localStorage.removeItem('nutriUser');
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = '/';
+  }
+  
+  // ========== AUTH CHECK ==========
+  const user = JSON.parse(localStorage.getItem('nutriUser'));
+  if (!user) {
+    window.location.href = '/login-page';
+  }
+</script>
+
+</body>
+</html>
