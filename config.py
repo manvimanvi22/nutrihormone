@@ -32,7 +32,7 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
         'sqlite:///nutrihormone.db'
-    )
+    ).replace('postgres://', 'postgresql://')
 
 class TestingConfig(Config):
     """Testing configuration"""
