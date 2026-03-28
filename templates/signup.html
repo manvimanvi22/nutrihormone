@@ -175,3 +175,46 @@ function togglePassword(inputId, iconId) {
     icon.classList.replace("fa-eye-slash", "fa-eye");
   }
 }
+async function handleSignup(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const errorMsg = document.getElementById("errorMsg");
+
+  // Reset error
+  errorMsg.classList.add("hidden");
+
+  // Check passwords match
+  if (password !== confirmPassword) {
+    errorMsg.innerText = "Passwords do not match";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  try {
+    const res = await fetch("/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Account created successfully! Please log in.");
+      window.location.href = "/login-page";
+    } else {
+      errorMsg.innerText = data.error || "Signup failed. Try again.";
+      errorMsg.classList.remove("hidden");
+    }
+
+  } catch (err) {
+    console.error(err);
+    errorMsg.innerText = "Server error. Please try again.";
+    errorMsg.classList.remove("hidden");
+  }
+}
+</script>
