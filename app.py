@@ -125,7 +125,15 @@ class Cycle(db.Model):
     metabolic_risk_at_upload = db.Column(db.Float, nullable=True)  # Risk score snapshot
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-
+# ======================================================
+# AUTO-CREATE DATABASE TABLES
+# ======================================================
+with app.app_context():
+    try:
+        db.create_all()
+        print("✓ Database tables created/verified")
+    except Exception as e:
+        print(f"⚠️ Database init warning: {e}")
 # ======================================================
 # HEALTH METRICS REFERENCE RANGES
 # ======================================================
