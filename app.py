@@ -43,7 +43,7 @@ migrate = Migrate(app, db)
 # GOOGLE GEMINI API SETUP
 # ======================================================
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'AIzaSyDa35kO7vAXTC91seTzuI1JGT0HaUKjPnM')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'AIzaSyAMC2O2sLEq3BZ25-wesBl-qgHBhKYxFy0')
 try:
     genai.configure(api_key=GOOGLE_API_KEY)
     print("✓ Google Gemini API configured successfully")
